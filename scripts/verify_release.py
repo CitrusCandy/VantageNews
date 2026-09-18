@@ -76,12 +76,14 @@ def verify_project_files(root: Path) -> bool:
         "frontend/lib/utils.ts",
         # Documentation & Disaster Recovery
         "docs/disaster-recovery.md",
+        "docs/deployment.md",
         # Scripts & Readiness
         "scripts/verify_release.py",
         "scripts/incident_readiness.py",
         "scripts/disaster_recovery_check.py",
         # CI & Orchestration
         "docker-compose.yml",
+        "docker-compose.prod.yml",
         ".github/workflows/ci.yml",
     ]
 
