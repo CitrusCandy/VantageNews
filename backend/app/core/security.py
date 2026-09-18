@@ -560,12 +560,19 @@ def sanitize_dict_secrets(data: Any) -> Any:
 def get_allowed_cors_origins() -> List[str]:
     """Parse CORS allowed origins from environment variable or return secure defaults."""
     raw = os.getenv("CORS_ORIGINS", "").strip()
+    default_local = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "http://localhost",
+        "http://127.0.0.1",
+    ]
     if not raw:
-        return [
-            "http://localhost:3000",
-            "http://127.0.0.1:3000",
-            "http://localhost:8000",
-            "http://127.0.0.1:8000",
-        ]
+        return default_local
     origins = [origin.strip() for origin in raw.split(",") if origin.strip()]
-    return origins if origins else ["http://localhost:3000"]
+    for loc in default_local:
+        if loc not in origins:
+            origins.append(loc)
+    return origins
+
