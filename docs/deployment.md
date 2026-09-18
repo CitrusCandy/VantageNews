@@ -99,7 +99,17 @@ Create `.env` in the project root on your production host (or configure via your
 
 ## 4. Deployment Instructions
 
-### Method A: Single-Host Docker Compose Deployment (Recommended)
+### Method A: Turnkey Automated Script (Fastest)
+
+On any clean Ubuntu 22.04+ or Debian 12 server, execute:
+```bash
+sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/CitrusCandy/VantageNews/main/scripts/deploy_production.sh)"
+```
+This automatically installs Docker, configures the firewall (ports 80, 443, 22), generates secure random keys in `.env`, builds the production images, launches all 5 services, verifies health probes, and starts the background worker scheduler.
+
+---
+
+### Method B: Manual Docker Compose Deployment
 
 1. **Clone repository onto the target host**:
    ```bash
@@ -126,7 +136,31 @@ Create `.env` in the project root on your production host (or configure via your
 
 ---
 
-## 5. Verification & Health Probes
+## 5. Domain DNS & HTTPS / SSL Configuration
+
+### Step 1: Configure DNS
+In your DNS provider (Cloudflare, Route53, Namecheap, GoDaddy):
+* Create an **A Record**:
+  * **Name**: `@` or `vantage`
+  * **Value / IP**: `<YOUR_SERVER_PUBLIC_IP>`
+  * **TTL**: Auto / 300 seconds
+
+### Step 2: Obtain Free SSL Certificate (Certbot / Let's Encrypt)
+On your host server, install Certbot and configure certificates:
+```bash
+sudo apt-get install -y certbot python3-certbot-nginx
+
+# Obtain SSL Certificate
+sudo certbot certonly --standalone -d vantage.yourdomain.com
+
+# Mount certificates in docker-compose.prod.yml (under gateway volumes):
+# - /etc/letsencrypt:/etc/letsencrypt:ro
+```
+Or if using **Cloudflare**: enable Cloudflare Proxy (Orange Cloud) with SSL Mode set to **Full** or **Flexible** for instant global TLS.
+
+---
+
+## 6. Verification & Health Probes
 
 1. **Verify Liveness Probe**:
    ```bash
@@ -160,7 +194,7 @@ Create `.env` in the project root on your production host (or configure via your
 
 ---
 
-## 6. Maintenance, Updates & Rollbacks
+## 7. Maintenance, Updates & Rollbacks
 
 ### Zero-Downtime Rolling Update:
 ```bash
@@ -180,3 +214,4 @@ curl -X POST "http://localhost/api/ops/backups/create" \
 ```bash
 docker compose -f docker-compose.prod.yml exec backend python -m app.database.restore --latest --confirm
 ```
+

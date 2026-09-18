@@ -81,6 +81,7 @@ def verify_project_files(root: Path) -> bool:
         "scripts/verify_release.py",
         "scripts/incident_readiness.py",
         "scripts/disaster_recovery_check.py",
+        "scripts/deploy_production.sh",
         # CI & Orchestration
         "docker-compose.yml",
         "docker-compose.prod.yml",
